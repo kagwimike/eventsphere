@@ -1,41 +1,53 @@
-import { createContext, useState } from "react";
+import { createContext, useState, useEffect } from "react";
 import API from "../api/axios";
 
 export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  // 🔑 Login using username & password (JWT)
+  // 🔄 Fetch logged-in user
+  const fetchUser = async () => {
+    try {
+      const res = await API.get("/auth/me/");
+      setUser(res.data);
+    } catch (error) {
+      console.error("FETCH USER ERROR:", error);
+      setUser(null);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // 🔑 Login
   const login = async (username, password) => {
     try {
-      // Request JWT tokens
       const res = await API.post("/token/", { username, password });
 
-      // Save tokens in localStorage
       localStorage.setItem("access", res.data.access);
       localStorage.setItem("refresh", res.data.refresh);
 
-      // Optionally: set user directly from response
-      setUser(res.data.user);
+      // ✅ Immediately fetch user after login
+      await fetchUser();
     } catch (error) {
       console.error("LOGIN ERROR:", error);
       console.log("RESPONSE DATA:", error.response?.data);
       console.log("STATUS CODE:", error.response?.status);
-      throw error; // allow Login.js to catch & display the error
+      throw error;
     }
   };
 
-  // 🔑 Register new user
+  // 🔑 Register
   const register = async (data) => {
     try {
       const res = await API.post("/auth/register/", data);
-      return res.data; // optional: return created user
+      return res.data;
     } catch (error) {
       console.error("REGISTER ERROR:", error);
       console.log("RESPONSE DATA:", error.response?.data);
       console.log("STATUS CODE:", error.response?.status);
-      throw error; // allow Register.js to catch & display
+      throw error;
     }
   };
 
@@ -46,8 +58,20 @@ export const AuthProvider = ({ children }) => {
     setUser(null);
   };
 
+  // 🔁 Restore session on refresh
+  useEffect(() => {
+    const token = localStorage.getItem("access");
+    if (token) {
+      fetchUser();
+    } else {
+      setLoading(false);
+    }
+  }, []);
+
   return (
-    <AuthContext.Provider value={{ user, login, register, logout }}>
+    <AuthContext.Provider
+      value={{ user, login, register, logout, loading }}
+    >
       {children}
     </AuthContext.Provider>
   );

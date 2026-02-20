@@ -3,7 +3,7 @@ import { AuthContext } from "../auth/AuthContext";
 import { useNavigate } from "react-router-dom";
 
 export default function Login() {
-  const { login } = useContext(AuthContext);
+  const { login, logout, user } = useContext(AuthContext);
   const navigate = useNavigate();
 
   const [form, setForm] = useState({
@@ -15,42 +15,57 @@ export default function Login() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError("");
 
     try {
       await login(form.username, form.password);
-
-      // redirect after success
-      navigate("/"); // change to /dashboard later
+      navigate("/");
     } catch (err) {
-      setError("Invalid credentials");
+      setError("Invalid username or password");
     }
+  };
+
+  const handleLogout = () => {
+    logout();
+    navigate("/login");
   };
 
   return (
     <div className="auth-container">
       <form onSubmit={handleSubmit} className="auth-form">
-        <h2>Login</h2>
+        <h2>{user ? "You're Logged In" : "Login"}</h2>
 
         {error && <p className="error">{error}</p>}
 
-        <input
-          placeholder="Username"
-          value={form.username}
-          onChange={(e) =>
-            setForm({ ...form, username: e.target.value })
-          }
-        />
+        {!user ? (
+          <>
+            <input
+              placeholder="Username"
+              value={form.username}
+              onChange={(e) =>
+                setForm({ ...form, username: e.target.value })
+              }
+            />
 
-        <input
-          type="password"
-          placeholder="Password"
-          value={form.password}
-          onChange={(e) =>
-            setForm({ ...form, password: e.target.value })
-          }
-        />
+            <input
+              type="password"
+              placeholder="Password"
+              value={form.password}
+              onChange={(e) =>
+                setForm({ ...form, password: e.target.value })
+              }
+            />
 
-        <button type="submit">Login</button>
+            <button type="submit">Login</button>
+          </>
+        ) : (
+          <>
+            <p className="success">Welcome, {user.username}</p>
+            <button type="button" onClick={handleLogout}>
+              Logout
+            </button>
+          </>
+        )}
       </form>
     </div>
   );

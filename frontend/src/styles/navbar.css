@@ -1,29 +1,88 @@
+/* ===== NAVBAR ===== */
+
 .navbar {
+  width: 100%;
+  height: 70px;
+  background-color: #111827;
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  background-color: #0f172a;
-  padding: 15px 40px;
-  color: white;
+  justify-content: space-between;
+  padding: 0 40px;
+  box-sizing: border-box;
 }
 
-.logo {
-  font-size: 22px;
-  font-weight: bold;
+/* Logo */
+.navbar .logo {
+  color: #ffffff;
+  font-size: 20px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  cursor: pointer;
 }
 
+/* Nav Links Container */
 .nav-links {
-  display: flex;
   list-style: none;
+  display: flex;
+  align-items: center;
   gap: 25px;
+  margin: 0;
+  padding: 0;
 }
 
+/* Nav Links */
+.nav-links li {
+  display: flex;
+  align-items: center;
+}
+
+/* Links */
 .nav-links a {
   text-decoration: none;
-  color: white;
-  transition: 0.3s;
+  color: #e5e7eb;
+  font-size: 15px;
+  font-weight: 500;
+  transition: 0.3s ease;
 }
 
 .nav-links a:hover {
-  color: #38bdf8;
+  color: #60a5fa;
+}
+
+/* Logout Button */
+.nav-links button {
+  background-color: #ef4444;
+  color: #ffffff;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: 0.3s ease;
+}
+
+.nav-links button:hover {
+  background-color: #dc2626;
+}
+
+/* User Greeting (optional) */
+.nav-user {
+  color: #9ca3af;
+  font-size: 14px;
+  margin-right: 10px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .navbar {
+    padding: 0 20px;
+  }
+
+  .nav-links {
+    gap: 15px;
+  }
+
+  .nav-links a {
+    font-size: 14px;
+  }
 }

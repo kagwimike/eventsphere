@@ -9,6 +9,10 @@ import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 
 import { AuthProvider } from "./auth/AuthContext";
+import EventsList from "./pages/EventsList";
+import EventForm from "./pages/EventForm";
+import ProtectedRoute from "./auth/ProtectedRoute";
+
 
 function App() {
   return (
@@ -33,6 +37,30 @@ function App() {
             }
           />
           */}
+           <Route
+            path="/events"
+            element={
+              <ProtectedRoute>
+                <EventsList />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/events/new"
+            element={
+              <ProtectedRoute>
+                <EventForm />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/events/:id/edit"
+            element={
+              <ProtectedRoute>
+                <EventForm />
+              </ProtectedRoute>
+            }
+          />
         </Routes>
 
         <Footer />
