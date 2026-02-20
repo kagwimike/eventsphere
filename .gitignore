@@ -1,0 +1,15 @@
+# React
+node_modules/
+build/
+.env
+
+# Django
+# Ignore any folder named venv or node_modules anywhere in the project
+**/venv/
+**/node_modules/
+**/__pycache__/
+
+# Ignore local database and environment secrets
+db.sqlite3
+.env
+.vscode/
