@@ -1,0 +1,287 @@
+/* ============================================
+   EVENT FORM — Refined Editorial Style
+   Typefaces: DM Serif Display + DM Sans
+   Theme: Deep navy + warm amber accent
+   ============================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&display=swap');
+
+/* ── CSS Variables ── */
+:root {
+  --navy:       #0f1623;
+  --navy-mid:   #1a2540;
+  --navy-light: #243050;
+  --border:     #2e3d5c;
+  --amber:      #f5a623;
+  --amber-dim:  #c47e0e;
+  --text-primary:   #eef2ff;
+  --text-secondary: #8a9abf;
+  --text-muted:     #546180;
+  --danger:    #e05c5c;
+  --danger-bg: rgba(224, 92, 92, 0.08);
+  --radius:    10px;
+  --radius-lg: 16px;
+  --transition: 0.2s ease;
+}
+
+/* ── Reset & base ── */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* ── Page wrapper ── */
+.event-form-container {
+  min-height: 100vh;
+  background-color: var(--navy);
+  background-image:
+    radial-gradient(ellipse 80% 60% at 70% -10%, rgba(245,166,35,0.07) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 40% at 0% 100%, rgba(36,48,80,0.8) 0%, transparent 70%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  font-family: 'DM Sans', sans-serif;
+}
+
+/* ── Card ── */
+.event-form-card {
+  width: 100%;
+  max-width: 620px;
+  background: var(--navy-mid);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 48px 48px 52px;
+  box-shadow:
+    0 0 0 1px rgba(255,255,255,0.03) inset,
+    0 24px 80px rgba(0,0,0,0.5),
+    0 2px 12px rgba(0,0,0,0.3);
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  animation: slideUp 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Heading ── */
+.event-form-card h2 {
+  font-family: 'DM Serif Display', serif;
+  font-size: 2rem;
+  font-weight: 400;
+  color: var(--text-primary);
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+  margin-bottom: 6px;
+  position: relative;
+  padding-bottom: 20px;
+}
+
+.event-form-card h2::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 40px;
+  height: 2px;
+  background: var(--amber);
+  border-radius: 2px;
+}
+
+/* ── Error banner ── */
+.event-form-card .error {
+  background: var(--danger-bg);
+  border: 1px solid rgba(224, 92, 92, 0.25);
+  color: var(--danger);
+  font-size: 0.85rem;
+  font-weight: 500;
+  padding: 10px 14px;
+  border-radius: var(--radius);
+  letter-spacing: 0.01em;
+}
+
+/* ── Shared input/select/textarea styles ── */
+.event-form-card input,
+.event-form-card textarea,
+.event-form-card select {
+  width: 100%;
+  background: var(--navy-light);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text-primary);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.925rem;
+  font-weight: 400;
+  padding: 12px 16px;
+  outline: none;
+  transition: border-color var(--transition), box-shadow var(--transition), background var(--transition);
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.event-form-card input::placeholder,
+.event-form-card textarea::placeholder {
+  color: var(--text-muted);
+  font-weight: 300;
+}
+
+/* Focus states */
+.event-form-card input:focus,
+.event-form-card textarea:focus,
+.event-form-card select:focus {
+  border-color: var(--amber);
+  box-shadow: 0 0 0 3px rgba(245,166,35,0.12);
+  background: #1f2e4a;
+}
+
+/* Hover states */
+.event-form-card input:hover:not(:focus),
+.event-form-card textarea:hover:not(:focus),
+.event-form-card select:hover:not(:focus) {
+  border-color: #3e5072;
+}
+
+/* datetime-local icon color */
+.event-form-card input[type="datetime-local"]::-webkit-calendar-picker-indicator {
+  filter: invert(0.5) sepia(1) saturate(3) hue-rotate(10deg);
+  cursor: pointer;
+  opacity: 0.6;
+  transition: opacity var(--transition);
+}
+.event-form-card input[type="datetime-local"]::-webkit-calendar-picker-indicator:hover {
+  opacity: 1;
+}
+
+/* Textarea */
+.event-form-card textarea {
+  min-height: 100px;
+  resize: vertical;
+  line-height: 1.6;
+}
+
+/* Number input — remove arrows */
+.event-form-card input[type="number"]::-webkit-inner-spin-button,
+.event-form-card input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+}
+
+/* ── Date row ── */
+.date-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+/* ── Category wrapper ── */
+.category-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  position: relative;
+}
+
+.category-wrapper select {
+  flex: 1;
+  /* Custom dropdown arrow */
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%238a9abf' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  padding-right: 36px;
+  cursor: pointer;
+}
+
+.category-wrapper select option {
+  background: var(--navy-mid);
+  color: var(--text-primary);
+}
+
+/* ── Category badge preview ── */
+.category-preview {
+  display: inline-flex;
+  align-items: center;
+  padding: 5px 12px;
+  background: rgba(245,166,35,0.12);
+  border: 1px solid rgba(245,166,35,0.3);
+  color: var(--amber);
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  border-radius: 999px;
+  white-space: nowrap;
+  animation: badgePop 0.2s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  flex-shrink: 0;
+}
+
+@keyframes badgePop {
+  from { opacity: 0; transform: scale(0.8); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+/* ── Submit button ── */
+.event-form-card button[type="submit"] {
+  margin-top: 6px;
+  width: 100%;
+  padding: 14px 24px;
+  background: var(--amber);
+  color: #0f1623;
+  border: none;
+  border-radius: var(--radius);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.925rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  transition: background var(--transition), transform var(--transition), box-shadow var(--transition);
+  box-shadow: 0 4px 20px rgba(245,166,35,0.25);
+}
+
+.event-form-card button[type="submit"]:hover:not(:disabled) {
+  background: #f7b740;
+  box-shadow: 0 6px 28px rgba(245,166,35,0.38);
+  transform: translateY(-1px);
+}
+
+.event-form-card button[type="submit"]:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: 0 2px 10px rgba(245,166,35,0.2);
+}
+
+.event-form-card button[type="submit"]:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+/* Loading state pulse */
+.event-form-card button[type="submit"]:disabled {
+  animation: pulse 1.4s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 0.55; }
+  50%       { opacity: 0.35; }
+}
+
+/* ── Responsive ── */
+@media (max-width: 520px) {
+  .event-form-card {
+    padding: 32px 24px 36px;
+  }
+
+  .date-row {
+    grid-template-columns: 1fr;
+  }
+
+  .category-wrapper {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .category-wrapper select {
+    width: 100%;
+  }
+}

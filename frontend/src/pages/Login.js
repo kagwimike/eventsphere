@@ -1,6 +1,7 @@
 import { useState, useContext } from "react";
 import { AuthContext } from "../auth/AuthContext";
 import { useNavigate } from "react-router-dom";
+import "../styles/login.css";
 
 export default function Login() {
   const { login, logout, user } = useContext(AuthContext);
@@ -12,6 +13,7 @@ export default function Login() {
   });
 
   const [error, setError] = useState("");
+  const [showPassword, setShowPassword] = useState(false); // 👁️ toggle
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -19,7 +21,7 @@ export default function Login() {
 
     try {
       await login(form.username, form.password);
-      navigate("/");
+      navigate("/events");
     } catch (err) {
       setError("Invalid username or password");
     }
@@ -33,28 +35,42 @@ export default function Login() {
   return (
     <div className="auth-container">
       <form onSubmit={handleSubmit} className="auth-form">
-        <h2>{user ? "You're Logged In" : "Login"}</h2>
+        <h2>{user ? "You're Logged In" : "Welcome Back 👋"}</h2>
 
         {error && <p className="error">{error}</p>}
 
         {!user ? (
           <>
-            <input
-              placeholder="Username"
-              value={form.username}
-              onChange={(e) =>
-                setForm({ ...form, username: e.target.value })
-              }
-            />
+            <div className="input-group">
+              <input
+                placeholder="Username"
+                value={form.username}
+                onChange={(e) =>
+                  setForm({ ...form, username: e.target.value })
+                }
+                required
+              />
+            </div>
 
-            <input
-              type="password"
-              placeholder="Password"
-              value={form.password}
-              onChange={(e) =>
-                setForm({ ...form, password: e.target.value })
-              }
-            />
+            {/* 👁️ PASSWORD WITH TOGGLE */}
+            <div className="input-group password-group">
+              <input
+                type={showPassword ? "text" : "password"}
+                placeholder="Password"
+                value={form.password}
+                onChange={(e) =>
+                  setForm({ ...form, password: e.target.value })
+                }
+                required
+              />
+
+              <span
+                className="toggle-password"
+                onClick={() => setShowPassword(!showPassword)}
+              >
+                {showPassword ? "🙈" : "👁️"}
+              </span>
+            </div>
 
             <button type="submit">Login</button>
           </>

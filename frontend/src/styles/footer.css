@@ -1,7 +1,29 @@
 .footer {
-  text-align: center;
+  background: #020617;
+  color: #94a3b8;
   padding: 20px;
-  background-color: #0f172a;
-  color: white;
-  margin-top: 50px;
+  text-align: center;
+  margin-top: 40px;
+}
+
+.footer-content {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: center;
+}
+
+.socials {
+  display: flex;
+  gap: 16px;
+}
+
+.socials a {
+  font-size: 1.5rem;
+  text-decoration: none;
+  transition: transform 0.2s ease;
+}
+
+.socials a:hover {
+  transform: scale(1.2);
 }

@@ -12,6 +12,8 @@ import { AuthProvider } from "./auth/AuthContext";
 import EventsList from "./pages/EventsList";
 import EventForm from "./pages/EventForm";
 import ProtectedRoute from "./auth/ProtectedRoute";
+import EventDetail from "./pages/EventDetail";
+import About from "./pages/About";
 
 
 function App() {
@@ -25,6 +27,8 @@ function App() {
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/events/:id" element={<EventDetail />} />
+          <Route path="/about" element={<About />} />
 
           {/* Protected Route */}
           {/* 

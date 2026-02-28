@@ -1,12 +1,18 @@
-import React from "react";
 import "../styles/footer.css";
 
-function Footer() {
+export default function Footer() {
   return (
     <footer className="footer">
-      <p>© 2026 EventHub. All rights reserved.</p>
+      <div className="footer-content">
+        <p>© {new Date().getFullYear()} EventSphere. All rights reserved.</p>
+
+        <div className="socials">
+          <a href="#" target="_blank" rel="noreferrer">🐦</a>
+          <a href="#" target="_blank" rel="noreferrer">📸</a>
+          <a href="#" target="_blank" rel="noreferrer">📘</a>
+          <a href="#" target="_blank" rel="noreferrer">💼</a>
+        </div>
+      </div>
     </footer>
   );
 }
-
-export default Footer;

@@ -9,4 +9,5 @@ urlpatterns = [
 
     path('api/auth/', include('users.urls')),
     path('api/', include('events.urls')),   
+    # path("api/notifications/", include("notifications.urls")),
 ]

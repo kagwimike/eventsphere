@@ -51,6 +51,8 @@ INSTALLED_APPS = [
 
 AUTH_USER_MODEL = 'users.User'
 
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
 MIDDLEWARE = [
    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
@@ -137,7 +139,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Africa/Nairobi'
 
 USE_I18N = True
 
@@ -162,3 +164,21 @@ SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
 }
+
+# =========================
+# 📩 EMAIL CONFIGURATION
+# =========================
+
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+
+EMAIL_HOST = "smtp.gmail.com"
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+
+# ⚠️ Replace with your email
+EMAIL_HOST_USER = "myke50994@gmail.com"
+
+# ⚠️ Use Gmail App Password (NOT your normal password)
+EMAIL_HOST_PASSWORD = "qwcvxajplscrrzbm"
+
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
