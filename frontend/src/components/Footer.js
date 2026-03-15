@@ -14,7 +14,7 @@ export default function Footer() {
             rel="noopener noreferrer"
             title="GitHub"
           >
-            <i className="fab fa-github"></i> {/* If using FontAwesome */}
+            <i className="fab fa-github"></i>
             GitHub
           </a>
 
@@ -30,8 +30,9 @@ export default function Footer() {
           </a>
 
           {/* Twitter/X or Portfolio */}
+          {/* eslint-disable-next-line jsx-a11y/anchor-is-valid */}
           <a 
-            href="#" 
+            href="/#" 
             target="_blank" 
             rel="noopener noreferrer"
             title="Twitter"
