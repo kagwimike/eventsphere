@@ -1,4 +1,4 @@
-import { useEffect, useState, useContext } from "react";
+import { useEffect, useState, useContext, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import API from "../api/axios";
 import { AuthContext } from "../auth/AuthContext";
@@ -18,9 +18,9 @@ export default function EventDetail() {
   const [commentStatus, setCommentStatus] = useState("");
 
   // ---------------------------
-  // 🔄 Fetch event + registrations
+  // 🔄 Fetch event + registrations (Stabilized with useCallback)
   // ---------------------------
-  const fetchEvent = async () => {
+  const fetchEvent = useCallback(async () => {
     setLoading(true);
     try {
       const res = await API.get(`/events/${id}/`);
@@ -44,11 +44,13 @@ export default function EventDetail() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [id, user]); // Dependencies for useCallback
 
   useEffect(() => {
-    if (id) fetchEvent();
-  }, [id, user]);
+    if (id) {
+      fetchEvent();
+    }
+  }, [id, fetchEvent]); // fetchEvent is now a stable dependency
 
   // ---------------------------
   // 📊 Capacity

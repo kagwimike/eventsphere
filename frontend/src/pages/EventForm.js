@@ -1,4 +1,4 @@
-import { useState, useEffect, useContext } from "react";
+import { useState, useEffect, useContext, useCallback } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import API from "../api/axios";
 import { AuthContext } from "../auth/AuthContext";
@@ -7,7 +7,9 @@ import "../styles/event-form.css";
 export default function EventForm() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { user } = useContext(AuthContext);
+  
+  // 1. Removed { user } since it was unused and causing the build to fail
+  useContext(AuthContext); 
 
   const [form, setForm] = useState({
     title: "",
@@ -23,23 +25,20 @@ export default function EventForm() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  // 🔄 Fetch categories
-useEffect(() => {
-  const fetchCategories = async () => {
+  // 2. Wrapped fetchCategories in useCallback to stabilize it
+  const fetchCategories = useCallback(async () => {
     try {
       const res = await API.get("/categories/");
-      
-      console.log("🔥 Categories API response:", res);
-      console.log("🔥 Categories data:", res.data);
-
       setCategories(res.data);
     } catch (err) {
       console.error("❌ Error fetching categories:", err.response || err);
     }
-  };
+  }, []);
 
-  fetchCategories();
-}, []);
+  // 🔄 Fetch categories
+  useEffect(() => {
+    fetchCategories();
+  }, [fetchCategories]);
 
   // 🔄 Fetch event (edit mode)
   useEffect(() => {
@@ -48,7 +47,6 @@ useEffect(() => {
       API.get(`/events/${id}/`)
         .then((res) => {
           const data = res.data;
-
           setForm({
             title: data.title || "",
             description: data.description || "",
@@ -71,87 +69,54 @@ useEffect(() => {
     }));
   };
 
-  // 🚀 Submit
   const handleSubmit = async (e) => {
-  e.preventDefault();
-  setError("");
+    e.preventDefault();
+    setError("");
 
-  // ✅ Frontend validation
-  if (!form.title || !form.start_time || !form.end_time) {
-    return setError("Title, Start Time, and End Time are required.");
-  }
-
-  if (!form.category) {
-    return setError("Please select a category.");
-  }
-
-  setLoading(true);
-
-  try {
-    const payload = {
-      ...form,
-      capacity: Number(form.capacity),
-      category: Number(form.category),
-    };
-
-    console.log("🚀 PAYLOAD:", payload);
-
-    let response;
-
-    if (id) {
-      response = await API.put(`/events/${id}/`, payload);
-    } else {
-      response = await API.post("/events/", payload);
+    if (!form.title || !form.start_time || !form.end_time) {
+      return setError("Title, Start Time, and End Time are required.");
     }
 
-    console.log("✅ SUCCESS RESPONSE:", response.data);
+    if (!form.category) {
+      return setError("Please select a category.");
+    }
 
-    navigate("/events");
-  } catch (err) {
-    console.error("🔥 FULL ERROR OBJECT:", err);
+    setLoading(true);
 
-    // ✅ Case 1: Server responded (Django error)
-    if (err.response) {
-      console.error("🔥 BACKEND RESPONSE:", err.response.data);
+    try {
+      const payload = {
+        ...form,
+        capacity: Number(form.capacity),
+        category: Number(form.category),
+      };
 
-      const data = err.response.data;
-
-      // Django validation errors (field-based)
-      if (typeof data === "object") {
-        const messages = Object.entries(data)
-          .map(([key, value]) => {
-            if (Array.isArray(value)) {
-              return `${key}: ${value.join(", ")}`;
-            }
-            return `${key}: ${value}`;
-          })
-          .join(" | ");
-
-        setError(messages || "Server error occurred.");
+      if (id) {
+        await API.put(`/events/${id}/`, payload);
       } else {
-        setError(data || "Server error occurred.");
+        await API.post("/events/", payload);
       }
-    }
 
-    // ✅ Case 2: No response (server down / network)
-    else if (err.request) {
-      console.error("🔥 NO RESPONSE:", err.request);
-      setError("No response from server. Is Django running?");
+      navigate("/events");
+    } catch (err) {
+      if (err.response) {
+        const data = err.response.data;
+        if (typeof data === "object") {
+          const messages = Object.entries(data)
+            .map(([key, value]) => (Array.isArray(value) ? `${key}: ${value.join(", ")}` : `${key}: ${value}`))
+            .join(" | ");
+          setError(messages || "Server error occurred.");
+        } else {
+          setError(data || "Server error occurred.");
+        }
+      } else {
+        setError("Something went wrong. Try again.");
+      }
+    } finally {
+      setLoading(false);
     }
+  };
 
-    // ✅ Case 3: Something else
-    else {
-      console.error("🔥 UNKNOWN ERROR:", err.message);
-      setError("Something went wrong. Try again.");
-    }
-  } finally {
-    setLoading(false);
-  }
-};
-  // 🎯 Get selected category name (for badge preview)
-  const selectedCategory = categories.find(
-    (c) => c.id === Number(form.category)
-  );
+  const selectedCategory = categories.find((c) => c.id === Number(form.category));
 
   if (loading) return <p>Loading...</p>;
 
@@ -159,7 +124,6 @@ useEffect(() => {
     <div className="event-form-container">
       <form className="event-form-card" onSubmit={handleSubmit}>
         <h2>{id ? "Edit Event" : "Create Event"}</h2>
-
         {error && <p className="error">{error}</p>}
 
         <input
@@ -203,7 +167,6 @@ useEffect(() => {
           onChange={(e) => handleChange("capacity", e.target.value)}
         />
 
-        {/* 🎯 CATEGORY DROPDOWN */}
         <div className="category-wrapper">
           <select
             value={form.category}
@@ -217,8 +180,6 @@ useEffect(() => {
               </option>
             ))}
           </select>
-
-          {/* 🏷️ Live Badge Preview */}
           {selectedCategory && (
             <span className="category-preview">
               {selectedCategory.name}

@@ -7,10 +7,37 @@ export default function Footer() {
         <p>© {new Date().getFullYear()} EventSphere. All rights reserved.</p>
 
         <div className="socials">
-          <a href="#" target="_blank" rel="noreferrer">🐦</a>
-          <a href="#" target="_blank" rel="noreferrer">📸</a>
-          <a href="#" target="_blank" rel="noreferrer">📘</a>
-          <a href="#" target="_blank" rel="noreferrer">💼</a>
+          {/* GitHub Profile */}
+          <a 
+            href="https://github.com/kagwimike" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            title="GitHub"
+          >
+            <i className="fab fa-github"></i> {/* If using FontAwesome */}
+            GitHub
+          </a>
+
+          {/* LinkedIn Profile */}
+          <a 
+            href="https://linkedin.com/in/mike-kagwi-1829973aa" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            title="LinkedIn"
+          >
+            <i className="fab fa-linkedin"></i>
+            LinkedIn
+          </a>
+
+          {/* Twitter/X or Portfolio */}
+          <a 
+            href="#" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            title="Twitter"
+          >
+            Twitter
+          </a>
         </div>
       </div>
     </footer>
