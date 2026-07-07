@@ -1,4 +1,4 @@
-import React, { useContext, useState, useEffect, useRef } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import "../styles/navbar.css";
 import { AuthContext } from "../auth/AuthContext";
@@ -9,12 +9,9 @@ function Navbar() {
   const navigate = useNavigate();
 
   const [menuOpen, setMenuOpen] = useState(false);
-
-  // 🔔 Notifications
   const [notifications, setNotifications] = useState([]);
   const [dropdownOpen, setDropdownOpen] = useState(false);
-
-  const dropdownRef = useRef();
+  const dropdownRef = useRef(null);
 
   const handleLogout = () => {
     logout();
@@ -22,74 +19,49 @@ function Navbar() {
     setMenuOpen(false);
   };
 
-  const toggleMenu = () => setMenuOpen(!menuOpen);
+  const toggleMenu = () => setMenuOpen((prev) => !prev);
   const closeMenu = () => setMenuOpen(false);
 
-  // =========================
-  // 🔔 FETCH NOTIFICATIONS
-  // =========================
   const fetchNotifications = async () => {
     try {
       const res = await API.get("/notifications/");
       setNotifications(res.data);
     } catch (err) {
-      console.error("❌ Notifications fetch error:", err.response || err);
+      console.error("Notifications fetch error:", err.response || err);
     }
   };
 
   useEffect(() => {
     if (user) {
       fetchNotifications();
-
-      // 🔄 Poll every 10s (simulate real-time)
-      const interval = setInterval(fetchNotifications, 10000);
-      return () => clearInterval(interval);
+      const interval = window.setInterval(fetchNotifications, 10000);
+      return () => window.clearInterval(interval);
     }
   }, [user]);
 
-  // =========================
-  // 🔴 UNREAD COUNT
-  // =========================
-  const unreadCount = notifications.filter(n => !n.is_read).length;
+  const unreadCount = notifications.filter((n) => !n.is_read).length;
 
-  // =========================
-  // ✅ MARK ONE AS READ
-  // =========================
   const markAsRead = async (id) => {
     try {
-      await API.patch(`/notifications/${id}/`, { is_read: true });
-
-      setNotifications(prev =>
-        prev.map(n =>
-          n.id === id ? { ...n, is_read: true } : n
-        )
-      );
+      await API.patch(`/notifications/${id}/read/`, { is_read: true });
+      setNotifications((prev) => prev.map((n) => (n.id === id ? { ...n, is_read: true } : n)));
     } catch (err) {
-      console.error("❌ Mark read error:", err.response || err);
+      console.error("Mark read error:", err.response || err);
     }
   };
 
-  // =========================
-  // ✅ MARK ALL AS READ
-  // =========================
   const markAllAsRead = async () => {
     try {
       await API.patch("/notifications/mark-all-read/");
-
-      setNotifications(prev =>
-        prev.map(n => ({ ...n, is_read: true }))
-      );
+      setNotifications((prev) => prev.map((n) => ({ ...n, is_read: true })));
     } catch (err) {
-      console.error("❌ Mark all error:", err.response || err);
+      console.error("Mark all error:", err.response || err);
     }
   };
 
-  // =========================
-  // 🖱 CLOSE DROPDOWN OUTSIDE CLICK
-  // =========================
   useEffect(() => {
-    const handleClickOutside = (e) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
         setDropdownOpen(false);
       }
     };
@@ -100,24 +72,20 @@ function Navbar() {
 
   return (
     <nav className="navbar">
-      {/* 🔷 Logo */}
       <div className="logo">
-        <NavLink to="/">EventHub</NavLink>
+        <NavLink to="/">EventSphere</NavLink>
       </div>
 
-      {/* 🍔 Mobile Toggle */}
       <div className={`menu-toggle ${menuOpen ? "open" : ""}`} onClick={toggleMenu}>
-        <span></span>
-        <span></span>
-        <span></span>
+        <span />
+        <span />
+        <span />
       </div>
 
-      {/* 🔗 Links */}
       <ul className={`nav-links ${menuOpen ? "active" : ""}`}>
         <li>
           <NavLink to="/" onClick={closeMenu}>Home</NavLink>
         </li>
-
         <li>
           <NavLink to="/events" onClick={closeMenu}>Events</NavLink>
         </li>
@@ -125,32 +93,20 @@ function Navbar() {
         {user ? (
           <>
             <li>
-              <NavLink to="/events/new" onClick={closeMenu}>
-                Create Event
-              </NavLink>
+              <NavLink to="/events/new" onClick={closeMenu}>Create Event</NavLink>
             </li>
 
-            {/* 🔔 NOTIFICATIONS */}
             <li className="notification-wrapper" ref={dropdownRef}>
-              <div
-                className="notification-bell"
-                onClick={() => setDropdownOpen(prev => !prev)}
-              >
+              <div className="notification-bell" onClick={() => setDropdownOpen((prev) => !prev)}>
                 🔔
-                {unreadCount > 0 && (
-                  <span className="badge">{unreadCount}</span>
-                )}
+                {unreadCount > 0 && <span className="badge">{unreadCount}</span>}
               </div>
 
               {dropdownOpen && (
                 <div className="notification-dropdown">
                   <div className="notification-header">
                     <h4>Notifications</h4>
-                    {notifications.length > 0 && (
-                      <button onClick={markAllAsRead}>
-                        Mark all
-                      </button>
-                    )}
+                    {notifications.length > 0 && <button onClick={markAllAsRead}>Mark all</button>}
                   </div>
 
                   {notifications.length === 0 ? (
@@ -164,9 +120,7 @@ function Navbar() {
                       >
                         <strong>{n.title}</strong>
                         <p>{n.message}</p>
-                        <span className="time">
-                          {new Date(n.created_at).toLocaleString()}
-                        </span>
+                        <span className="time">{new Date(n.created_at).toLocaleString()}</span>
                       </div>
                     ))
                   )}
@@ -175,11 +129,8 @@ function Navbar() {
             </li>
 
             <li className="welcome">👋 {user.username}</li>
-
             <li>
-              <button className="logout-btn" onClick={handleLogout}>
-                Logout
-              </button>
+              <button className="logout-btn" onClick={handleLogout}>Logout</button>
             </li>
           </>
         ) : (
@@ -187,15 +138,11 @@ function Navbar() {
             <li>
               <NavLink to="/login" onClick={closeMenu}>Login</NavLink>
             </li>
-
             <li>
               <NavLink to="/about" onClick={closeMenu}>About</NavLink>
             </li>
-
             <li>
-              <NavLink to="/register" onClick={closeMenu} className="register-btn">
-                Get Started
-              </NavLink>
+              <NavLink to="/register" onClick={closeMenu} className="register-btn">Get Started</NavLink>
             </li>
           </>
         )}

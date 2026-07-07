@@ -13,3 +13,9 @@ build/
 db.sqlite3
 .env
 .vscode/
+
+# Ignore Python virtual environment
+backend/.venv/
+.venv/
+venv/
+ENV/

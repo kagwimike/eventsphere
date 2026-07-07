@@ -1,28 +1,22 @@
-from rest_framework import generics, permissions
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework.exceptions import ValidationError
-
-from django.db import transaction
-from django.core.mail import send_mail
 from django.conf import settings
-
+from django.core.mail import send_mail
+from django.db import transaction
+from rest_framework import generics, permissions
 from rest_framework.decorators import api_view
+from rest_framework.response import Response
+from rest_framework.views import APIView
 
-from .models import Event, Registration, Category, Comment, Notification
+from .models import Category, Comment, Event, Notification, Registration
+from .permissions import IsOwnerOrReadOnly
 from .serializers import (
-    EventSerializer,
-    RegistrationSerializer,
     CategorySerializer,
     CommentSerializer,
-    NotificationSerializer
+    EventSerializer,
+    NotificationSerializer,
+    RegistrationSerializer,
 )
 
-from .permissions import IsOwnerOrReadOnly
 
-# ----------------------------
-# 📅 EVENTS
-# ----------------------------
 class EventListCreateView(generics.ListCreateAPIView):
     queryset = Event.objects.all().order_by("-start_time")
     serializer_class = EventSerializer
@@ -41,9 +35,9 @@ class EventRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
         event = serializer.save()
         confirmed_users = event.registrations.filter(waitlist=False)
 
-        for reg in confirmed_users:
+        for registration in confirmed_users:
             Notification.objects.create(
-                user=reg.user,
+                user=registration.user,
                 title="Event Updated",
                 message=f"{event.title} has been updated",
                 notification_type="event_update",
@@ -52,17 +46,15 @@ class EventRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
             try:
                 send_mail(
                     f"📢 Event Updated: {event.title}",
-                    f"Hello {reg.user.username},\n\nThe event '{event.title}' has been updated.",
+                    f"Hello {registration.user.username},\n\nThe event '{event.title}' has been updated.",
                     settings.DEFAULT_FROM_EMAIL,
-                    [reg.user.email],
+                    [registration.user.email],
                     fail_silently=True,
                 )
-            except:
-                pass
+            except Exception:
+                continue
 
-# ----------------------------
-# 📝 REGISTRATION
-# ----------------------------
+
 class RegisterEventView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
@@ -77,12 +69,12 @@ class RegisterEventView(APIView):
             return Response({"detail": "You are already registered"}, status=400)
 
         confirmed_count = event.registrations.filter(waitlist=False).count()
-        is_full = confirmed_count >= event.capacity
+        is_full = event.capacity > 0 and confirmed_count >= event.capacity
 
         registration = Registration.objects.create(
             user=request.user,
             event=event,
-            waitlist=is_full
+            waitlist=is_full,
         )
 
         Notification.objects.create(
@@ -90,10 +82,14 @@ class RegisterEventView(APIView):
             title="Added to Waitlist" if is_full else "Registration Confirmed",
             message=f"Status updated for {event.title}",
             notification_type="waitlist" if is_full else "registration",
-            event=event
+            event=event,
         )
 
-        return Response({"message": "Registered successfully", "waitlist": registration.waitlist}, status=201)
+        return Response(
+            {"message": "Registered successfully", "waitlist": registration.waitlist},
+            status=201,
+        )
+
 
 class UnregisterEventView(APIView):
     permission_classes = [permissions.IsAuthenticated]
@@ -103,19 +99,25 @@ class UnregisterEventView(APIView):
         registration = Registration.objects.filter(user=request.user, event_id=pk).first()
         if not registration:
             return Response({"detail": "Not registered"}, status=400)
-        
+
         event = registration.event
         registration.delete()
 
         next_user = Registration.objects.filter(event=event, waitlist=True).order_by("registered_at").first()
         if next_user:
             next_user.waitlist = False
-            next_user.save()
-            Notification.objects.create(user=next_user.user, title="You're In!", event=event)
+            next_user.save(update_fields=["waitlist"])
+            Notification.objects.create(
+                user=next_user.user,
+                title="You’re In!",
+                message=f"A spot opened up for {event.title}",
+                notification_type="promotion",
+                event=event,
+            )
 
         return Response({"detail": "Unregistered successfully"}, status=200)
 
-# ✅ ADDED THIS MISSING VIEW
+
 class EventRegistrationsView(generics.ListAPIView):
     serializer_class = RegistrationSerializer
     permission_classes = [permissions.IsAuthenticated]
@@ -123,9 +125,7 @@ class EventRegistrationsView(generics.ListAPIView):
     def get_queryset(self):
         return Registration.objects.filter(event_id=self.kwargs.get("pk"))
 
-# ----------------------------
-# 💬 COMMENTS, CATEGORIES & NOTIFICATIONS
-# ----------------------------
+
 class CommentListCreateView(generics.ListCreateAPIView):
     serializer_class = CommentSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
@@ -134,33 +134,39 @@ class CommentListCreateView(generics.ListCreateAPIView):
         return Comment.objects.filter(event_id=self.kwargs.get("pk")).order_by("-created_at")
 
     def perform_create(self, serializer):
-        # The fix: Ensure the user and event are explicitly saved
-        serializer.save(
-            user=self.request.user, 
-            event_id=self.kwargs.get("pk")
-        )
+        serializer.save(user=self.request.user, event_id=self.kwargs.get("pk"))
+
 
 class CategoryListView(generics.ListAPIView):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
 
+
 class EventByCategoryView(generics.ListAPIView):
     serializer_class = EventSerializer
+
     def get_queryset(self):
-        cat_id = self.request.query_params.get("category")
-        return Event.objects.filter(category_id=cat_id) if cat_id else Event.objects.all()
+        category_id = self.request.query_params.get("category")
+        if category_id:
+            return Event.objects.filter(category_id=category_id)
+        return Event.objects.all()
+
 
 class UserNotificationsView(generics.ListAPIView):
     serializer_class = NotificationSerializer
     permission_classes = [permissions.IsAuthenticated]
+
     def get_queryset(self):
         return Notification.objects.filter(user=self.request.user).order_by("-created_at")
+
 
 class MarkNotificationReadView(generics.UpdateAPIView):
     serializer_class = NotificationSerializer
     permission_classes = [permissions.IsAuthenticated]
+
     def get_queryset(self):
         return Notification.objects.filter(user=self.request.user)
+
     def perform_update(self, serializer):
         serializer.save(is_read=True)
 

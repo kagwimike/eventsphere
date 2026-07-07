@@ -77,7 +77,7 @@ export default function EventsList() {
         >
           <option value="">All Categories</option>
           {categories.map((cat) => (
-            <option key={cat.id} value={cat.name.toLowerCase()}>
+            <option key={cat.id} value={cat.id}>
               {cat.name}
             </option>
           ))}
@@ -98,9 +98,9 @@ export default function EventsList() {
             <div key={eventId} className="event-card fade-in">
               
               {/* 🎯 CATEGORY BADGE */}
-              {event.category && (
+              {event.category_details && (
                 <span className="category-badge">
-                  {event.category.name}
+                  {event.category_details.name}
                 </span>
               )}
 

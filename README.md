@@ -1,227 +1,81 @@
-🚀 EventHub — Full Stack Event Management System
-📌 Overview
+# EventSphere
 
-A full-stack event management platform for creating, managing, and attending events
+EventSphere is a full-stack event management platform for creating, discovering, and managing events with a polished experience for both organizers and attendees.
 
-Built with a modern React frontend and Django REST backend
+## Overview
 
-Designed with scalability, clean architecture, and real-world use cases in mind
+- React frontend with a modern, responsive UI
+- Django REST Framework backend with JWT authentication
+- Event creation, editing, deletion, registration, waitlisting, comments, and notifications
+- Clean separation between frontend routes, API integration, and business logic
 
-🧠 Core Features
-👤 Authentication & Authorization
+## Tech Stack
 
-Secure user registration and login
+- Frontend: React, React Router, Axios
+- Backend: Django, Django REST Framework, JWT
+- Database: SQLite by default (can be switched to PostgreSQL/MySQL)
 
-Token-based authentication
+## Project Structure
 
-Protected routes (only authenticated users access certain pages)
+- backend/: Django project and API
+- frontend/: React application
 
-Persistent login using context API
+## Features
 
-📅 Event Management
+- Secure user registration and login
+- Protected routes for authenticated users
+- Event CRUD operations
+- Capacity-aware registration with waitlist handling
+- Category-based filtering
+- Commenting on events
+- Notification center with unread badges
+- Clean, reusable UI components and styling
 
-Create, edit, and delete events
+## Backend Setup
 
-Event fields include:
+From the repository root:
 
-Title
+```bash
+cd backend
+python -m venv .venv
+source .venv/bin/activate   # On Windows use .venv\Scripts\activate
+pip install -r requirements.txt
+python manage.py migrate
+python manage.py runserver
+```
 
-Description
+If you are using your own virtual environment, activate it before installing dependencies.
 
-Location
+## Frontend Setup
 
-Start & End time
+```bash
+cd frontend
+npm install
+npm start
+```
 
-Capacity
+## Environment Notes
 
-Category
+The frontend expects the backend API at:
 
-Real-time form validation
+- http://127.0.0.1:8000/api
 
-Edit mode with pre-filled data
+If needed, you can override this with:
 
-🏷️ Category System
+```bash
+REACT_APP_API_URL=http://127.0.0.1:8000/api
+```
 
-Events grouped into categories
+## Notes for Your Local Environment
 
-Dynamic category dropdown from backend
+- The app was refactored for better readability, maintainability, and correctness.
+- The registration flow now handles capacity and waitlisting more predictably.
+- The UI has been cleaned up for a more consistent experience across auth screens, the home page, and event listings.
 
-Category badge preview in UI
+## Next Steps
 
-Enforced backend integrity (no null categories)
+- Add real-time notifications with WebSockets
+- Add image uploads for events
+- Add search and advanced filtering
+- Add richer admin and analytics views
 
-🎟️ Registration System
-
-Users can register for events
-
-Smart capacity handling:
-
-✅ Confirmed registrations
-
-⏳ Automatic waitlisting when full
-
-Tracks:
-
-Registered users
-
-Waitlist count
-
-📩 Email Notifications
-
-Automatic email on registration:
-
-Confirmation email
-
-Waitlist notification
-
-Uses Django email service
-
-Graceful failure handling
-
-🔔 Notification System
-
-Real-time notification UI in navbar
-
-Features include:
-
-Unread notification badge
-
-Dropdown notification panel
-
-Mark single notification as read
-
-Mark all notifications as read
-
-Backend sync with is_read state
-
-Auto-refresh (polling for updates)
-
-💬 Comments System
-
-Users can comment on events
-
-Displays:
-
-Comment content
-
-Author
-
-Timestamp
-
-📊 Event Insights
-
-Displays:
-
-Confirmed attendees count
-
-Waitlist count
-
-Computed dynamically from backend
-
-🏗️ Architecture
-🔹 Frontend (React)
-
-React Router for navigation
-
-Context API for authentication state
-
-Axios for API communication
-
-Component-based architecture
-
-Protected route system
-
-🔹 Backend (Django REST Framework)
-
-RESTful API design
-
-Modular serializers:
-
-EventSerializer
-
-RegistrationSerializer
-
-CommentSerializer
-
-CategorySerializer
-
-NotificationSerializer
-
-Business logic handled in serializers
-
-Database integrity enforced (foreign keys, constraints)
-
-⚙️ Key Technical Highlights
-
-Clean separation of concerns (Frontend vs Backend)
-
-Reusable API service layer
-
-Error handling (client + server)
-
-Data validation on both ends
-
-Optimistic UI updates for notifications
-
-Scalable structure for future features
-
-🚨 Challenges Solved
-
-Prevented null category errors (IntegrityError fix)
-
-Designed waitlist system based on capacity
-
-Synced frontend notifications with backend state
-
-Handled async API errors professionally
-
-Built protected routing system
-
-🔮 Future Improvements
-
-Real-time notifications using WebSockets
-
-Payment integration (e.g., M-Pesa / Daraja API)
-
-Admin dashboard
-
-Event analytics dashboard
-
-Search & filtering system
-
-Image uploads for events
-
-🛠️ Tech Stack
-
-Frontend: React, React Router, Axios
-
-Backend: Django, Django REST Framework
-
-Database: SQLite / PostgreSQL
-
-Auth: Token-based authentication
-
-Email: Django Email Service
-
-📦 Installation (Basic)
-Backend
-
-Clone repo
-
-Create virtual environment
-
-Install dependencies
-
-Run migrations
-
-Start server
-
-Frontend
-
-Install dependencies
-
-Run development server
-
-👨‍💻 Author
-
-Software Engineer 

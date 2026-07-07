@@ -3,7 +3,6 @@ from django.db import models, transaction
 from django.conf import settings
 
 
-# 🏷️ CATEGORY MODEL (PREDEFINED)
 class Category(models.Model):
     CATEGORY_CHOICES = [
         ("conference", "Conference"),
@@ -12,24 +11,23 @@ class Category(models.Model):
         ("meetup", "Meetup"),
     ]
 
-    name = models.CharField(
-        max_length=50,
-        choices=CATEGORY_CHOICES,
-        unique=True
-    )
+    name = models.CharField(max_length=50, choices=CATEGORY_CHOICES, unique=True)
+
+    class Meta:
+        verbose_name_plural = "categories"
+        ordering = ["name"]
 
     def __str__(self):
         return self.get_name_display()
 
 
-# 📅 EVENT MODEL
 class Event(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
 
     owner = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
-        related_name="events"
+        related_name="events",
     )
 
     title = models.CharField(max_length=255)
@@ -41,11 +39,10 @@ class Event(models.Model):
 
     capacity = models.PositiveIntegerField(default=0)
 
-    # ✅ REQUIRED CATEGORY
     category = models.ForeignKey(
         Category,
-        on_delete=models.PROTECT,   # prevents deleting used categories
-        related_name="events"
+        on_delete=models.PROTECT,
+        related_name="events",
     )
 
     created_at = models.DateTimeField(auto_now_add=True)
@@ -58,7 +55,6 @@ class Event(models.Model):
     def __str__(self):
         return self.title
 
-    # ✅ CAPACITY HELPERS (FIXES YOUR ERROR)
     @property
     def confirmed_count(self):
         return self.registrations.filter(waitlist=False).count()
@@ -68,18 +64,17 @@ class Event(models.Model):
         return self.registrations.filter(waitlist=True).count()
 
 
-# 📝 REGISTRATION MODEL (ATOMIC + SAFE)
 class Registration(models.Model):
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
-        related_name="registrations"
+        related_name="registrations",
     )
 
     event = models.ForeignKey(
         Event,
         on_delete=models.CASCADE,
-        related_name="registrations"
+        related_name="registrations",
     )
 
     waitlist = models.BooleanField(default=False)
@@ -91,29 +86,25 @@ class Registration(models.Model):
     def save(self, *args, **kwargs):
         with transaction.atomic():
             confirmed_count = (
-                Registration.objects
-                .select_for_update()
+                Registration.objects.select_for_update()
                 .filter(event=self.event, waitlist=False)
                 .count()
             )
-
-            self.waitlist = confirmed_count >= self.event.capacity
-
+            self.waitlist = self.event.capacity > 0 and confirmed_count >= self.event.capacity
             super().save(*args, **kwargs)
 
 
-# 💬 COMMENT MODEL
 class Comment(models.Model):
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
-        related_name="comments"
+        related_name="comments",
     )
 
     event = models.ForeignKey(
         Event,
         on_delete=models.CASCADE,
-        related_name="comments"
+        related_name="comments",
     )
 
     content = models.TextField()
@@ -124,7 +115,8 @@ class Comment(models.Model):
 
     def __str__(self):
         return f"{self.user} - {self.event}"
-    
+
+
 class Notification(models.Model):
     NOTIFICATION_TYPES = [
         ("registration", "Registration"),

@@ -54,7 +54,7 @@ export default function EventForm() {
             start_time: data.start_time?.slice(0, 16) || "",
             end_time: data.end_time?.slice(0, 16) || "",
             capacity: data.capacity || 0,
-            category: data.category?.id || "",
+            category: data.category_id || "",
           });
         })
         .catch((err) => console.error(err))

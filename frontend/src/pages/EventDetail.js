@@ -144,7 +144,7 @@ export default function EventDetail() {
   return (
     <div className="event-detail">
       <h2>{event.title}</h2>
-      {event.category && <p className="category">📂 {event.category.name}</p>}
+      {event.category_details && <p className="category">📂 {event.category_details.name}</p>}
       <p className="description">{event.description}</p>
 
       <div className="event-meta">

@@ -1,10 +1,9 @@
 import axios from "axios";
 
 const API = axios.create({
-  baseURL: "http://127.0.0.1:8000/api",
+  baseURL: process.env.REACT_APP_API_URL || "http://127.0.0.1:8000/api",
 });
 
-// Attach access token
 API.interceptors.request.use((req) => {
   const token = localStorage.getItem("access");
   if (token) {
